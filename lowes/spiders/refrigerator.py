@@ -6,7 +6,8 @@ class RefrigeratorSpider(scrapy.Spider):
   start_urls = ['https://www.lowes.com']
 
   def parse(self, response):
-    yield scrapy.Request("https://www.lowes.com/c/Ranges-Appliances", callback=self.parse_category)
+    url = "https://www.lowes.com/c/Refrigerators-Appliances"
+    yield scrapy.Request(url, callback=self.parse_category)
 
   def parse_category(self, response):
     categories = response.css('div.imagecolumncontainer div.grid-100 div.grid-16 a::attr(href)').getall()
