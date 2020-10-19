@@ -6,11 +6,20 @@ class RefrigeratorSpider(scrapy.Spider):
   start_urls = ['https://www.lowes.com']
 
   def parse(self, response):
-    url = "https://www.lowes.com/c/Refrigerators-Appliances"
-    yield scrapy.Request(url, callback=self.parse_category)
+    url = "https://www.lowes.com/c/Appliances?int_cmp=Homepage:A2:MajorAppliances:Other:PC_Appliances"
+    yield scrapy.Request(url, callback=self.parse_appliance)
+
+  def parse_appliance(self, response):
+    appliances = response.css('div.imagecolumncontainer div.grid-100 div.grid-16 a::attr(href)').getall()
+    for appliance in appliances:
+      if appliance.split('/')[-1].isdigit():
+        yield scrapy.Request(f"https://www.lowes.com{appliance}", callback=self.parse_refrigerators)
+      else:
+        yield scrapy.Request(f"https://www.lowes.com{appliance}", callback=self.parse_category)
 
   def parse_category(self, response):
     categories = response.css('div.imagecolumncontainer div.grid-100 div.grid-16 a::attr(href)').getall()
+
     for category in categories:
       yield scrapy.Request(f"https://www.lowes.com{category}", callback=self.parse_refrigerators)
 
