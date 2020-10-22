@@ -33,5 +33,8 @@ class RefrigeratorSpider(scrapy.Spider):
       category = str(refrigerator_json[1]["itemListElement"][2]["name"])
       title = str(refrigerator_json[2]["name"])
       
-      refrigerator = Refrigerator(title=title, brand=brand, category=category, url=response.url, sku=response.url.split('/')[-1])
+      sku = response.url.split('/')[-1]
+      url = response.url
+
+      refrigerator = Refrigerator(title=title, brand=brand, category=category, url=url, sku=sku)
       yield refrigerator
