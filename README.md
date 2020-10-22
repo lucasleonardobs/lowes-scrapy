@@ -39,6 +39,7 @@ Technologies that I used to develop this crawl
 - [Python](https://www.python.org/)
 - [Scrapy](https://scrapy.org/)
 - [Json](https://docs.python.org/3/library/json.html)
+- [Node.js](https://nodejs.org/en/)
 - [Puppeteer](https://pptr.dev)
 
 ## 💻 Getting started
