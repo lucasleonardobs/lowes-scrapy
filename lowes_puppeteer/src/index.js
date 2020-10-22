@@ -14,7 +14,7 @@ puppeteer.use(AdblockerPlugin());
 puppeteer.use(StealthPlugin());
 
 const scrapingPrice = async (links) => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
 
   await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36');
@@ -23,10 +23,12 @@ const scrapingPrice = async (links) => {
 
   for(link of links) {
     await page.goto(link);
-    const check = page.$('span.aPrice.large span');
+    const check = await page.$('span.aPrice.large span');
 
     if (!check) {
-      prices.push('[Error] - This Page is Missing or Moved');
+      error = 'Error';
+      prices.push(error);
+      console.log(error);
       continue;
     }
 
@@ -44,26 +46,22 @@ const scrapingPrice = async (links) => {
   return prices;
 }
 
-const fetchCsvLinks = () => {
-  const links = []
 
-  fs.createReadStream(refrigerators_path)
-    .pipe(csv({}))
-    .on('data', row => { links.push(row.URL) })
-    .on('end', async () => { 
-      const prices = await scrapingPrice(links);
+const links = []
 
-      const csvWriter = createCsvWriter({
-        path: prices_path,
-        header: [
-          { id: 'price', title: 'Price' },
-        ]
-      })
+fs.createReadStream(refrigerators_path)
+.pipe(csv({}))
+.on('data', row => { links.push(row.URL) })
+.on('end', async () => { 
+  const prices = await scrapingPrice(links);
 
-      csvWriter.writeRecords(prices).then(() => console.log('The CSV file was written successfully'))
-    })
+  const csvWriter = createCsvWriter({
+    path: prices_path,
+    header: [
+      { id: 'price', title: 'Price' },
+    ]
+  })
 
-  return links
-}
+  csvWriter.writeRecords(prices).then(() => console.log('The CSV file was written successfully'))
+})
 
-fetchCsvLinks();
