@@ -23,23 +23,36 @@ const scrapingPrice = async (links) => {
 
   for(link of links) {
     await page.goto(link);
-    const check = await page.$('span.aPrice.large span');
+    const check_price = await page.$('span.aPrice.large span');
+    const check_missing_or_moved = await page.$eval('h1', txt => txt.innerText);
+    
+    console.log(check_missing_or_moved);
 
-    if (!check) {
-      error = 'Error';
+    if (check_missing_or_moved == 'Looks Like This Page Is Missing or Moved') {
+      error = '[Error] - This page is missing or moved.';
+      prices.push(error);
+      console.log(error);
+      continue
+
+    } else if (!check_price) {
+      error = '[Error] - Price not found, link may be unaivailable.';
       prices.push(error);
       console.log(error);
       continue;
     }
 
-    await page.waitForSelector('span.aPrice.large span');
-
     const price = await page.$eval('span.aPrice.large span', price => {
       return price.innerText
     });
 
-    console.log(price);
-    prices.push(price);
+    if (!price) {
+      error = '[Error] - Internal error, price not found';
+      prices.push(error);
+      console.log(error)
+    } else {    
+      prices.push(price);
+      console.log(price);
+    }
   }
   console.log(prices);
   browser.close();
