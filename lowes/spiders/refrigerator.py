@@ -1,3 +1,5 @@
+from lowes.items import Refrigerator
+
 import scrapy
 import json
 
@@ -30,13 +32,6 @@ class RefrigeratorSpider(scrapy.Spider):
       refrigerator_json = json.loads(response.xpath("//script[@type='application/ld+json']/text()").get())
       category = str(refrigerator_json[1]["itemListElement"][2]["name"])
       title = str(refrigerator_json[2]["name"])
-
-      refrigerator = {
-        "Title": title,
-        "Brand": brand, 
-        "Category": category,
-        "URL": response.url,
-        "SKU": response.url.split('/')[-1]
-      }
-
+      
+      refrigerator = Refrigerator(title=title, brand=brand, category=category, url=response.url, sku=response.url.split('/')[-1])
       yield refrigerator
